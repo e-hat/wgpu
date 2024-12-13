@@ -304,6 +304,7 @@ pub(crate) enum Error<'a> {
     },
     DiagnosticAttributeNotSupported {
         on_what_plural: &'static str,
+        intended_diagnostic_directive: bool,
         spans: Vec<Span>,
     },
 }
@@ -1082,6 +1083,7 @@ impl<'a> Error<'a> {
             },
             Error::DiagnosticAttributeNotSupported {
                 on_what_plural,
+                intended_diagnostic_directive,
                 ref spans,
             } => ParseError {
                 message: format!(
@@ -1098,7 +1100,15 @@ impl<'a> Error<'a> {
                         "some statements, and `switch`/`loop` bodies."
                     )
                     .into(),
-                    "These attributes are well-formed, you likely just need to move them.".into(),
+                    {
+                        if intended_diagnostic_directive {
+                            concat!("To declare a diagnostic filter that applies to the entire module, ", 
+                            "move this line to the top of the file and remove the `@` symbol.").into()
+                        } else {
+                            "These attributes are well-formed, you likely just need to move them."
+                                .into()
+                        }
+                    },
                 ],
             },
         }
