@@ -304,7 +304,6 @@ pub(crate) enum Error<'a> {
     },
     DiagnosticAttributeNotSupported {
         on_what_plural: &'static str,
-        intended_diagnostic_directive: bool,
         spans: Vec<Span>,
     },
 }
@@ -1083,38 +1082,42 @@ impl<'a> Error<'a> {
             },
             Error::DiagnosticAttributeNotSupported {
                 on_what_plural,
-                intended_diagnostic_directive,
                 ref spans,
-            } => ParseError {
-                message: format!(
-                    "`@diagnostic(…)` attribute(s) on {on_what_plural} are not supported",
-                ),
-                labels: spans
-                    .iter()
-                    .cloned()
-                    .map(|span| (span, "".into()))
-                    .collect(),
-                notes: vec![
-                    concat!(
-                        "`@diagnostic(…)` attributes are only permitted on `fn`s, ",
-                        "some statements, and `switch`/`loop` bodies."
-                    )
-                    .into(),
-                    {
-                        if intended_diagnostic_directive {
-                            concat!(
-                                "To declare a diagnostic filter that applies to the ",
-                                "entire module, move this line to the top of the ",
-                                "file and remove the `@` symbol."
-                            )
-                            .into()
-                        } else {
-                            "These attributes are well-formed, you likely just need to move them."
+            } => {
+                // In this case the user may have intended to create a global diagnostic filter directive,
+                // so display a note to them suggesting the correct syntax.
+                let intended_diagnostic_directive = on_what_plural == "semicolons";
+                ParseError {
+                    message: format!(
+                        "`@diagnostic(…)` attribute(s) on {on_what_plural} are not supported",
+                    ),
+                    labels: spans
+                        .iter()
+                        .cloned()
+                        .map(|span| (span, "".into()))
+                        .collect(),
+                    notes: vec![
+                        concat!(
+                            "`@diagnostic(…)` attributes are only permitted on `fn`s, ",
+                            "some statements, and `switch`/`loop` bodies."
+                        )
+                        .into(),
+                        {
+                            if intended_diagnostic_directive {
+                                concat!(
+                                    "To declare a diagnostic filter that applies to the ",
+                                    "entire module, move this line to the top of the ",
+                                    "file and remove the `@` symbol."
+                                )
                                 .into()
-                        }
-                    },
-                ],
-            },
+                            } else {
+                                "These attributes are well-formed, you likely just need to move them."
+                                .into()
+                            }
+                        },
+                    ],
+                }
+            }
         }
     }
 }

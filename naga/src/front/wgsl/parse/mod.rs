@@ -2472,9 +2472,6 @@ impl Parser {
                 } else {
                     Err(Error::DiagnosticAttributeNotSupported {
                         on_what_plural,
-                        // In this case the user may have intended to create a global diagnostic filter directive,
-                        // so display a note to them suggesting the correct syntax.
-                        intended_diagnostic_directive: on_what_plural == "semicolons",
                         spans: filters.spans().collect(),
                     })
                 }
