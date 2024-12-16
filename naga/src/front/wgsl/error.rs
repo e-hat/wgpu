@@ -1102,8 +1102,12 @@ impl<'a> Error<'a> {
                     .into(),
                     {
                         if intended_diagnostic_directive {
-                            concat!("To declare a diagnostic filter that applies to the entire module, ", 
-                            "move this line to the top of the file and remove the `@` symbol.").into()
+                            concat!(
+                                "To declare a diagnostic filter that applies to the ",
+                                "entire module, move this line to the top of the ",
+                                "file and remove the `@` symbol."
+                            )
+                            .into()
                         } else {
                             "These attributes are well-formed, you likely just need to move them."
                                 .into()
