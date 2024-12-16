@@ -675,7 +675,7 @@ error: `@diagnostic(…)` attribute(s) on semicolons are not supported
   │ ^^^^^^^^^^^^^^^^^^^^^^^^^
   │
   = note: `@diagnostic(…)` attributes are only permitted on `fn`s, some statements, and `switch`/`loop` bodies.
-  = note: To declare a diagnostic filter that applies to the entire module, move this line to the top of the file and remove the `@` symbol.
+  = note: If you meant to declare a diagnostic filter that applies to the entire module, move this line to the top of the file and remove the `@` symbol.
 
 "
         );

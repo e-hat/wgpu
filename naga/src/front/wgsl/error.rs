@@ -1126,9 +1126,9 @@ impl<'a> Error<'a> {
                         {
                             if intended_diagnostic_directive {
                                 concat!(
-                                    "To declare a diagnostic filter that applies to the ",
-                                    "entire module, move this line to the top of the ",
-                                    "file and remove the `@` symbol."
+                                    "If you meant to declare a diagnostic filter that ",
+                                    "applies to the entire module, move this line to ",
+                                    "the top of the file and remove the `@` symbol."
                                 )
                                 .into()
                             } else {
