@@ -303,7 +303,7 @@ pub(crate) enum Error<'a> {
         spans: Vec<Span>,
     },
     DiagnosticAttributeNotSupported {
-        on_what_plural: &'static str,
+        on_what: DiagnosticAttributeNotSupportedPosition,
         spans: Vec<Span>,
     },
 }
@@ -311,6 +311,19 @@ pub(crate) enum Error<'a> {
 impl From<ConflictingDiagnosticRuleError> for Error<'_> {
     fn from(value: ConflictingDiagnosticRuleError) -> Self {
         Self::DiagnosticDuplicateTriggeringRule(value)
+    }
+}
+
+/// Used for diagnostic refinement in [`Error::DiagnosticAttributeNotSupported`].
+#[derive(Clone, Copy, Debug)]
+pub(crate) enum DiagnosticAttributeNotSupportedPosition {
+    SemicolonInModulePosition,
+    Other { display_plural: &'static str },
+}
+
+impl From<&'static str> for DiagnosticAttributeNotSupportedPosition {
+    fn from(display_plural: &'static str) -> Self {
+        Self::Other { display_plural }
     }
 }
 
@@ -1080,13 +1093,21 @@ impl<'a> Error<'a> {
                     "so they can prioritize it!"
                 ))],
             },
-            Error::DiagnosticAttributeNotSupported {
-                on_what_plural,
-                ref spans,
-            } => {
+            Error::DiagnosticAttributeNotSupported { on_what, ref spans } => {
                 // In this case the user may have intended to create a global diagnostic filter directive,
                 // so display a note to them suggesting the correct syntax.
-                let intended_diagnostic_directive = on_what_plural == "semicolons";
+                let intended_diagnostic_directive = match on_what {
+                    DiagnosticAttributeNotSupportedPosition::SemicolonInModulePosition => true,
+                    DiagnosticAttributeNotSupportedPosition::Other { .. } => false,
+                };
+                let on_what_plural = match on_what {
+                    DiagnosticAttributeNotSupportedPosition::SemicolonInModulePosition => {
+                        "semicolons"
+                    }
+                    DiagnosticAttributeNotSupportedPosition::Other { display_plural } => {
+                        display_plural
+                    }
+                };
                 ParseError {
                     message: format!(
                         "`@diagnostic(…)` attribute(s) on {on_what_plural} are not supported",
