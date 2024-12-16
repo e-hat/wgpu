@@ -1132,7 +1132,10 @@ impl<'a> Error<'a> {
                                 )
                                 .into()
                             } else {
-                                "These attributes are well-formed, you likely just need to move them."
+                                concat!(
+                                    "These attributes are well-formed, ",
+                                    "you likely just need to move them."
+                                )
                                 .into()
                             }
                         },
